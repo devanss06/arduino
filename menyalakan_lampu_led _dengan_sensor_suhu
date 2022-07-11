@@ -1,0 +1,70 @@
+/* Program Indikator Suhu DHT11 dengan LED dibuat oleh Indobot */
+
+#include "DHT.h"            //Library DHT
+
+#define DHTPIN 6              //Inisialisasi DHT pada pin D5
+
+#define DHTTYPE DHT22       //Inisialisasi tipe DHT
+
+DHT dht (DHTPIN, DHTTYPE);  //Mengenalkan pin dan tipe DHT
+
+float t;  //Variabel penampung nilai suhu
+
+int led1 = 3;   //LED kuning pada pin D3
+int led2 = 4;   //LED hijau pada pin D4
+
+unsigned long sebelum = 0;
+
+
+
+void setup() {
+
+  Serial.begin(9600);     //Mulai komunikasi serial
+  dht.begin();            //Mulai DHT
+
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+
+}
+
+void loop() {
+
+  unsigned long sekarang = millis();
+  if ( sekarang - sebelum >= 900 )
+  { float h = dht.readHumidity();
+    // Read temperature as Celsius (the default)
+    float t = dht.readTemperature();
+
+    // Check if any reads failed and exit early (to try again).
+    if (isnan(h) || isnan(t) ) {
+      Serial.println("Failed to read from DHT sensor!");
+      return;
+    }
+    Serial.print("Temperature: ");
+    Serial.print(t);
+    Serial.print(" *C ");
+    Serial.print("Humidity: ");
+    Serial.print(h);
+
+    Serial.println(" %");
+
+
+    if ((t >= 30) && (t <= 35)) {
+      Serial.println("suhu lebih dari 30,kurang dari 35");
+      digitalWrite(led1, LOW);
+      digitalWrite(led2, HIGH);
+
+    } else if ((t >= 35) && (t <= 40) ) {
+      Serial.println("suhu lebih dari 35, kurang dari 40");
+      digitalWrite(led1, HIGH);
+      digitalWrite(led2, LOW);
+
+    } else {
+      digitalWrite(led1, HIGH);
+      digitalWrite(led2, HIGH);
+    }
+
+    delay(1000);                  //Jeda pembacaan 1000ms
+
+  }
+}
